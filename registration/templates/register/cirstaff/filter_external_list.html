@@ -1,0 +1,20 @@
+{% extends "static/base_dash.html" %}
+{% load staticfiles %}
+{% block body %}<div class="container">
+  <div class="templatemo-content">
+  <div style="padding-top: 15px;">
+  <h1 style="text-align: center">
+      {{  object_list }}
+      {%  for item in object_list %}
+          {{  item.name }}
+          {{  item.aums_id }}
+      {%  endfor %}</h1> <br>
+  </div><!--page-header-->
+  <div class="row">
+      {% for item in object_list %}
+          {{ item.name }}
+      {% endfor %}
+  </div>
+</div>
+</div>
+{% endblock body %}
