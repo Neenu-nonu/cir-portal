@@ -129,3 +129,6 @@ class StudentFilterExternalView(ListView):
         return Student.Objects.filter(cgpa__gte = cgpa, curr_arrears=arrears, branch=branch, tenth_mark__gte =tenth, twelth_mark__gte =twelth)
 
 
+
+
+
