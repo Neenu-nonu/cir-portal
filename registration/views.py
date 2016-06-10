@@ -51,6 +51,7 @@ def anonymous_required(func):
         return response
     return as_view
 
+
 class UserRegistrationView(AnonymousRequiredMixin, FormView):
     template_name = "register/user/register_user.html"
     authenticated_redirect_url = reverse_lazy(u"home")
@@ -58,9 +59,10 @@ class UserRegistrationView(AnonymousRequiredMixin, FormView):
     success_url = '/register/user/success/'
 
     def form_valid(self, form):
-        form.instance.aums_id = form.instance.aums_id.lower()
         form.save()
         return FormView.form_valid(self, form)
+
+
 
 class StudentRegistrationView( LoginRequiredMixin, FormView):
     template_name = "register/cirstaff/register_student.html"
@@ -68,6 +70,7 @@ class StudentRegistrationView( LoginRequiredMixin, FormView):
     success_url = '/register/cirstaff/success'
 
     def form_valid(self, form):
+        form.instance.aums_id = form.instance.aums_id.lower()
         form.save()
         return FormView.form_valid(self, form)
 
@@ -116,19 +119,36 @@ class StudentListUpdateView(UpdateView):
             return obj
         else:
             raise Http404("That doesnt exist.")
+
 class StudentFilterExternalView(ListView):
     template_name = "register/cirstaff/filter_external_list.html"
 
     def get_queryset(self):
-        cgpa=float (self.request.GET.get('cgpa'))
+        cgpa = self.request.GET.get('cgpa')
         arrears = self.request.GET.get('arrear')
         branch = self.request.GET.get('branch')
         tenth = self.request.GET.get('tenth')
         twelth = self.request.GET.get('twelth')
-
-        return Student.Objects.filter(cgpa__gte = cgpa, curr_arrears=arrears, branch=branch, tenth_mark__gte =tenth, twelth_mark__gte =twelth)
-
-
-
+        return Student.Objects.filter(cgpa__gte = cgpa, curr_arrears =arrears,
+                                      branch=branch, tenth_mark__gte =tenth,
+                                      twelth_mark__gte=twelth)
 
 
+class StudentTechnicalTestEntryView(TemplateView):
+    template_name = "register/cirstaff/tests/technical_tests.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentTechnicalTestEntryView, self).get_context_data(**kwargs)
+        context['myvar'] = Test.Objects.all()
+        return context
+
+    def post(self,request):
+        aums_id = self.request.POST['aums_id'].lower()
+        test_id = self.request.POST['test']
+        marks = self.request.POST['mark']
+        print(aums_id + test_id + marks)
+        student = Student.Objects.get(aums_id=aums_id)
+        test = Test.Objects.get(pk=test_id)
+        TechTest.Objects.create_test_entry(student, test, marks)
+        return render_to_response('register/cirstaff/tests/technical_tests.html',
+                                  {'success': 'success', 'myvar': Test.Objects.all() })
